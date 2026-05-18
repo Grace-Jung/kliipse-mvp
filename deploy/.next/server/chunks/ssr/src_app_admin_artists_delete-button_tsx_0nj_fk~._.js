@@ -1,0 +1,3 @@
+module.exports=[61866,a=>{"use strict";var b=a.i(39752),c=a.i(82508),d=a.i(34542);a.s(["DeleteButton",0,function({id:a,type:e}){let f=(0,c.useRouter)(),[g,h]=(0,d.useState)(!1);async function i(){if(confirm("정말 삭제하시겠습니까?")){h(!0);try{(await fetch(`/api/admin/${e}/${a}`,{method:"DELETE"})).ok?f.refresh():alert("삭제에 실패했습니다.")}finally{h(!1)}}}return(0,b.jsx)("button",{onClick:i,disabled:g,className:"text-xs text-red-400 hover:text-red-300 transition disabled:opacity-50",children:g?"삭제중...":"삭제"})}])}];
+
+//# sourceMappingURL=src_app_admin_artists_delete-button_tsx_0nj_fk~._.js.map

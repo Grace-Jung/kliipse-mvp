@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id              String              @id @default(cuid())
+  name            String
+  email           String              @unique
+  phone           String?
+  passwordHash    String
+  role            String              @default("CUSTOMER") // ADMIN | ARTIST | CUSTOMER | PARTNER
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  serviceRequests ServiceRequest[]
+  partnerApplication PartnerApplication?
+}
+
+model PartnerApplication {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  stageName     String
+  genres        String   // JSON array
+  careerYears   Int
+  location      String
+  bio           String
+  portfolioUrl  String?
+  status        String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  adminMemo     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Artist {
+  id           String   @id @default(cuid())
+  name         String
+  stageName    String
+  genres       String   // JSON array stored as string
+  careerYears  Int
+  location     String
+  bio          String
+  profileImage String?
+  rating       Float    @default(0)
+  basePrice    Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  reviews      Review[]
+}
+
+model Equipment {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   // 스피커 | DJ 세트 | 조명 | 기타
+  description String
+  image       String?
+  rentalPrice Int
+  specs       String   // JSON string
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  reviews     Review[]
+}
+
+model ServiceRequest {
+  id            String    @id @default(cuid())
+  customerName  String
+  phone         String
+  email         String
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+  serviceType   String    // DJ_BOOKING | EQUIPMENT_RENTAL | SOUND_INSTALLATION
+  eventDate     String
+  eventLocation String
+  eventType     String
+  budget        String
+  message       String?
+  status        String    @default("NEW") // NEW | CONTACTED | QUOTED | CONFIRMED | CANCELLED
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  payments      Payment[]
+}
+
+model Payment {
+  id               String         @id @default(cuid())
+  serviceRequestId String
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+  amount           Int            // 결제 금액 (원)
+  method           String         // CARD | BANK_TRANSFER | KAKAO_PAY
+  status           String         @default("PENDING") // PENDING | COMPLETED | REFUNDED | FAILED
+  cardNumber       String?        // 마스킹된 카드번호 (시뮬레이션)
+  bankName         String?        // 은행명
+  transactionId    String?        // 거래 ID
+  paidAt           DateTime?
+  refundedAt       DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model Review {
+  id          String     @id @default(cuid())
+  rating      Float
+  content     String
+  authorName  String
+  artistId    String?
+  artist      Artist?    @relation(fields: [artistId], references: [id])
+  equipmentId String?
+  equipment   Equipment? @relation(fields: [equipmentId], references: [id])
+  createdAt   DateTime   @default(now())
+}
+
+model SuccessCase {
+  id            String   @id @default(cuid())
+  title         String
+  serviceType   String   // 기업 행사 | 음향 시공 | 페스티벌
+  description   String
+  image         String?
+  resultSummary String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
